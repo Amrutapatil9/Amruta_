@@ -1,0 +1,49 @@
+import pandas as pd
+
+# Load the Titanic dataset
+url = 'https://www.kaggle.com/datasets/heptapod/titanic?resource=download'  # Replace with your dataset path or URL
+titanic = pd.read_csv(url)
+# Display the first few rows of the dataset
+print(titanic.head())
+
+# Get a summary of the dataset
+print(titanic.info())
+
+# Describe the numerical features
+print(titanic.describe())
+
+# Check for missing values
+print(titanic.isnull().sum())
+# Fill missing values in the 'Age' column with the median age
+titanic['Age'].fillna(titanic['Age'].median(), inplace=True)
+
+# Fill missing values in the 'Embarked' column with the most common value
+titanic['Embarked'].fillna(titanic['Embarked'].mode()[0], inplace=True)
+
+# Drop the 'Cabin' column as it has too many missing values
+titanic.drop(columns=['Cabin'], inplace=True)
+
+# Drop rows with missing values in 'Fare' or 'Survived' (if any)
+titanic.dropna(subset=['Fare', 'Survived'], inplace=True)
+# Convert 'Sex' and 'Embarked' to categorical data types
+titanic['Sex'] = titanic['Sex'].astype('category')
+titanic['Embarked'] = titanic['Embarked'].astype('category')
+from sklearn.preprocessing import StandardScaler
+
+# Standardize numerical features
+scaler = StandardScaler()
+titanic[['Age', 'Fare']] = scaler.fit_transform(titanic[['Age', 'Fare']])
+# One-hot encode categorical features
+titanic = pd.get_dummies(titanic, columns=['Sex', 'Embarked'], drop_first=True)
+# Create a new feature 'FamilySize' as the sum of 'SibSp' and 'Parch'
+titanic['FamilySize'] = titanic['SibSp'] + titanic['Parch']
+
+# Create a new feature 'IsAlone' (1 if alone, 0 otherwise)
+titanic['IsAlone'] = (titanic['FamilySize'] == 0).astype(int)
+
+# Drop unnecessary columns
+titanic.drop(columns=['Name', 'Ticket', 'SibSp', 'Parch', 'FamilySize'], inplace=True)
+print(titanic.head())
+print(titanic.info())
+
+
